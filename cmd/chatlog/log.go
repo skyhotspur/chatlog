@@ -33,7 +33,7 @@ func initTuiLog(cmd *cobra.Command, args []string) {
 	if debug {
 		logpath := util.DefaultWorkDir("")
 		util.PrepareDir(logpath)
-		logFD, err := os.OpenFile(filepath.Join(logpath, "chatlog.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
+		logFD, err := os.OpenFile(filepath.Join(logpath, "chatlog.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 		if err != nil {
 			panic(err)
 		}

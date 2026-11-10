@@ -66,7 +66,7 @@ var dumpmemoryCmd = &cobra.Command{
 			return
 		}
 
-		if err = os.WriteFile(path, b, 0644); err != nil {
+		if err = os.WriteFile(path, b, 0600); err != nil {
 			log.Fatal().Err(err).Msg("write memory failed")
 			return
 		}
@@ -87,7 +87,7 @@ var dumpmemoryCmd = &cobra.Command{
 			log.Fatal().Err(err).Msg("read session.db failed")
 			return
 		}
-		if err = os.WriteFile(to, b, 0644); err != nil {
+		if err = os.WriteFile(to, b, 0600); err != nil {
 			log.Fatal().Err(err).Msg("write session.db failed")
 			return
 		}

@@ -174,7 +174,6 @@ func (e *V3Extractor) SearchKey(ctx context.Context, memory []byte) (string, boo
 					log.Debug().
 						Str("pattern", hex.EncodeToString(keyPattern.Pattern)).
 						Int("offset", offset).
-						Str("key", hex.EncodeToString(keyData)).
 						Msg("Key found")
 					return hex.EncodeToString(keyData), true
 				}

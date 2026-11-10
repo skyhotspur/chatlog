@@ -225,7 +225,7 @@ func (e *V4Extractor) worker(ctx context.Context, handle windows.Handle, memoryC
 						if isImgKey {
 							if imgKey == "" {
 								imgKey = key
-								log.Debug().Msg("Image key found: " + key)
+								log.Debug().Msg("Image key found")
 								// Report immediately when found
 								select {
 								case resultChannel <- [2]string{dataKey, imgKey}:
@@ -236,7 +236,7 @@ func (e *V4Extractor) worker(ctx context.Context, handle windows.Handle, memoryC
 						} else {
 							if dataKey == "" {
 								dataKey = key
-								log.Debug().Msg("Data key found: " + key)
+								log.Debug().Msg("Data key found")
 								// Report immediately when found
 								select {
 								case resultChannel <- [2]string{dataKey, imgKey}:

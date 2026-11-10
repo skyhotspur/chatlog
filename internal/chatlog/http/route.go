@@ -339,7 +339,13 @@ func (s *Service) handleMedia(c *gin.Context, _type string) {
 }
 
 func (s *Service) findPath(_type string, key string) (string, error) {
-	absolutePath := filepath.Join(s.conf.GetDataDir(), key)
+	// Without this, "../x" keys turn the 302/404 answer into a file-existence
+	// oracle for paths outside the data dir.
+	key = filepath.ToSlash(cleanRelPath(key))
+	if key == "" {
+		return "", errors.ErrMediaNotFound
+	}
+	absolutePath := filepath.Join(s.conf.GetDataDir(), filepath.FromSlash(key))
 	if _, err := os.Stat(absolutePath); err == nil {
 		return key, nil
 	}
@@ -361,7 +367,13 @@ func (s *Service) findPath(_type string, key string) (string, error) {
 }
 
 func (s *Service) handleMediaData(c *gin.Context) {
-	relativePath := filepath.Clean(c.Param("path"))
+	relativePath := cleanRelPath(c.Param("path"))
+	if isSensitiveDataPath(relativePath) {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "Access to this file is not allowed",
+		})
+		return
+	}
 
 	absolutePath := filepath.Join(s.conf.GetDataDir(), relativePath)
 

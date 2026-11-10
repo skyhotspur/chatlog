@@ -199,7 +199,7 @@ func (e *V3Extractor) worker(ctx context.Context, handle windows.Handle, is64Bit
 					if key := e.validateKey(handle, ptrValue); key != "" {
 						select {
 						case resultChannel <- key:
-							log.Debug().Msg("Valid key found: " + key)
+							log.Debug().Msg("Valid key found")
 							return
 						default:
 						}

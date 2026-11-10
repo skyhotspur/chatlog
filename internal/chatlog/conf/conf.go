@@ -38,7 +38,7 @@ func LoadTUIConfig(configPath string) (*TUIConfig, *config.Manager, error) {
 	}
 	conf.ConfigDir = tcm.Path
 
-	b, _ := json.Marshal(conf)
+	b, _ := json.Marshal(conf.Redacted())
 	log.Info().Msgf("tui config: %s", string(b))
 
 	return conf, tcm, nil
@@ -89,7 +89,7 @@ func LoadServiceConfig(configPath string, cmdConf map[string]any) (*ServerConfig
 		}
 	}
 
-	b, _ := json.Marshal(conf)
+	b, _ := json.Marshal(conf.Redacted())
 	log.Info().Msgf("server config: %s", string(b))
 
 	return conf, scm, nil
