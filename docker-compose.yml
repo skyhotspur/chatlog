@@ -7,6 +7,7 @@ services:
     ports:
       # 将主机的 5030 端口映射到 chatlog 容器的 5030 端口
       # 你可以根据需要修改主机端口，例如 "8080:5030"
+      # 只在本机使用时建议改为 "127.0.0.1:5030:5030"，避免暴露给局域网
       - "5030:5030"
     environment:
       - TZ=Asia/Shanghai
@@ -20,6 +21,10 @@ services:
       # - CHATLOG_IMG_KEY=${CHATLOG_IMG_KEY}
       # # 服务地址
       # - CHATLOG_HTTP_ADDR=${CHATLOG_HTTP_ADDR}
+      # # 访问令牌：端口对局域网开放时强烈建议设置，请求需携带 Authorization: Bearer <令牌>
+      # - CHATLOG_HTTP_TOKEN=${CHATLOG_HTTP_TOKEN}
+      # # 通过域名/主机名访问时需要放行（IP 和 localhost 无需设置），逗号分隔
+      # - CHATLOG_HTTP_ALLOWED_HOSTS=${CHATLOG_HTTP_ALLOWED_HOSTS}
       # # 是否自动解密
       # - CHATLOG_AUTO_DECRYPT=${CHATLOG_AUTO_DECRYPT}
       # 数据目录

@@ -358,8 +358,6 @@ func (m *Manager) CommandHTTPServer(configPath string, cmdConf map[string]any) e
 		go dat2img.ScanAndSetXorKey(dataDir)
 	}
 
-	log.Info().Msgf("server config: %+v", m.sc)
-
 	m.wechat = wechat.NewService(m.sc)
 
 	m.db = database.NewService(m.sc)

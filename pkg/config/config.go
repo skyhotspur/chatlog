@@ -130,8 +130,19 @@ func (c *Manager) SetConfig(key string, value interface{}) error {
 		if err := c.Viper.WriteConfig(); err != nil {
 			return err
 		}
+		c.restrictConfigFile()
 	}
 	return nil
+}
+
+// restrictConfigFile makes the config file owner-only: it stores the
+// database decryption keys of every known account.
+func (c *Manager) restrictConfigFile() {
+	if file := c.Viper.ConfigFileUsed(); file != "" {
+		if err := os.Chmod(file, 0600); err != nil {
+			log.Debug().Err(err).Msg("chmod config file failed")
+		}
+	}
 }
 
 // GetConfig retrieves all configuration settings as a map.

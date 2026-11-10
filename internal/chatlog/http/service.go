@@ -33,6 +33,7 @@ type Config interface {
 func NewService(conf Config, db *database.Service) *Service {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	token, allowedHosts := securityOptions(conf)
 
 	// Handle error from SetTrustedProxies
 	if err := router.SetTrustedProxies(nil); err != nil {
@@ -44,7 +45,9 @@ func NewService(conf Config, db *database.Service) *Service {
 		errors.RecoveryMiddleware(),
 		errors.ErrorHandlerMiddleware(),
 		gin.LoggerWithWriter(log.Logger, "/health"),
-		corsMiddleware(),
+		hostCheckMiddleware(allowedHosts),
+		corsMiddleware(allowedHosts),
+		tokenMiddleware(token),
 	)
 
 	s := &Service{
@@ -65,6 +68,8 @@ func (s *Service) Start() error {
 		Handler: s.router,
 	}
 
+	s.warnIfExposed()
+
 	go func() {
 		// Handle error from Run
 		if err := s.server.ListenAndServe(); err != nil {
@@ -84,8 +89,18 @@ func (s *Service) ListenAndServe() error {
 		Handler: s.router,
 	}
 
+	s.warnIfExposed()
 	log.Info().Msg("Starting HTTP server on " + s.conf.GetHTTPAddr())
 	return s.server.ListenAndServe()
+}
+
+// warnIfExposed flags the one configuration that hands chat history to the
+// whole network: a non-loopback listener with no access token.
+func (s *Service) warnIfExposed() {
+	token, _ := securityOptions(s.conf)
+	if token == "" && !isLoopbackAddr(s.conf.GetHTTPAddr()) {
+		log.Warn().Msgf("HTTP server listens on %s without an access token: anyone who can reach this address can read your chat history. Set http_token (--token / CHATLOG_HTTP_TOKEN) or bind to 127.0.0.1.", s.conf.GetHTTPAddr())
+	}
 }
 
 func (s *Service) Stop() error {

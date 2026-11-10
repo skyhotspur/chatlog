@@ -179,6 +179,12 @@ macOS 用户在获取密钥前需要临时关闭 SIP（系统完整性保护）�
 
 启动 HTTP 服务后（默认地址 `http://127.0.0.1:5030`），可通过以下 API 访问数据：
 
+> 🔒 **安全说明**：HTTP 服务可以读取解密后的全部聊天记录，请注意：
+> - 默认只监听 `127.0.0.1`；需要从其他设备访问时用 `-a 0.0.0.0:5030`（Docker 镜像默认如此），此时**务必设置访问令牌**。
+> - 访问令牌：`chatlog server --token <令牌>` 或环境变量 `CHATLOG_HTTP_TOKEN`。设置后所有请求（含 MCP）都需要携带 `Authorization: Bearer <令牌>`；浏览器访问 `http://<地址>/?token=<令牌>` 一次即可登录。
+> - 通过域名或主机名（而不是 IP / localhost）访问时，需要用 `--allowed-hosts nas.lan` 或 `CHATLOG_HTTP_ALLOWED_HOSTS` 放行该名称。
+> - `chatlog.json`（含密钥）和数据库文件不会通过 `/data` 接口提供。
+
 ### 聊天记录查询
 
 ```

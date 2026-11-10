@@ -295,8 +295,13 @@ func (c *Context) UpdateConfig() {
 
 	if len(pconf.DataDir) != 0 {
 		if b, err := json.Marshal(pconf); err == nil {
-			if err := os.WriteFile(filepath.Join(pconf.DataDir, "chatlog.json"), b, 0644); err != nil {
+			// Holds the decryption keys: owner-only. Chmod covers files
+			// created 0644 by earlier versions (WriteFile keeps old modes).
+			keyFile := filepath.Join(pconf.DataDir, "chatlog.json")
+			if err := os.WriteFile(keyFile, b, 0600); err != nil {
 				log.Error().Err(err).Msg("save chatlog.json failed")
+			} else if err := os.Chmod(keyFile, 0600); err != nil {
+				log.Debug().Err(err).Msg("chmod chatlog.json failed")
 			}
 		}
 	}

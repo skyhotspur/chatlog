@@ -31,6 +31,18 @@ type File struct {
 	Size         int64  `mapstructure:"size" json:"size"`
 }
 
+// Redacted returns a copy that is safe to log.
+func (c TUIConfig) Redacted() TUIConfig {
+	history := make([]ProcessConfig, len(c.History))
+	for i, h := range c.History {
+		h.DataKey = redact(h.DataKey)
+		h.ImgKey = redact(h.ImgKey)
+		history[i] = h
+	}
+	c.History = history
+	return c
+}
+
 func (c *TUIConfig) ParseHistory() map[string]ProcessConfig {
 	m := make(map[string]ProcessConfig)
 	for _, v := range c.History {

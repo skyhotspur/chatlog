@@ -1,21 +1,29 @@
 package conf
 
+import "strings"
+
 const (
-	DefalutHTTPAddr = "0.0.0.0:5030"
+	// Loopback by default: the API serves decrypted chat history without
+	// authentication unless http_token is set.
+	DefalutHTTPAddr = "127.0.0.1:5030"
 )
 
 type ServerConfig struct {
-	Type        string   `mapstructure:"type"`
-	Platform    string   `mapstructure:"platform"`
-	Version     int      `mapstructure:"version"`
-	FullVersion string   `mapstructure:"full_version"`
-	DataDir     string   `mapstructure:"data_dir"`
-	DataKey     string   `mapstructure:"data_key"`
-	ImgKey      string   `mapstructure:"img_key"`
-	WorkDir     string   `mapstructure:"work_dir"`
-	HTTPAddr    string   `mapstructure:"http_addr"`
-	AutoDecrypt bool     `mapstructure:"auto_decrypt"`
-	Webhook     *Webhook `mapstructure:"webhook"`
+	Type        string `mapstructure:"type"`
+	Platform    string `mapstructure:"platform"`
+	Version     int    `mapstructure:"version"`
+	FullVersion string `mapstructure:"full_version"`
+	DataDir     string `mapstructure:"data_dir"`
+	DataKey     string `mapstructure:"data_key"`
+	ImgKey      string `mapstructure:"img_key"`
+	WorkDir     string `mapstructure:"work_dir"`
+	HTTPAddr    string `mapstructure:"http_addr"`
+	// HTTPToken, when set, is required on every request (Bearer header, ?token= or cookie).
+	HTTPToken string `mapstructure:"http_token"`
+	// HTTPAllowedHosts is a comma-separated list of extra Host names (besides IPs and localhost).
+	HTTPAllowedHosts string   `mapstructure:"http_allowed_hosts"`
+	AutoDecrypt      bool     `mapstructure:"auto_decrypt"`
+	Webhook          *Webhook `mapstructure:"webhook"`
 }
 
 var ServerDefaults = map[string]any{}
@@ -53,6 +61,32 @@ func (c *ServerConfig) GetHTTPAddr() string {
 		c.HTTPAddr = DefalutHTTPAddr
 	}
 	return c.HTTPAddr
+}
+
+func (c *ServerConfig) GetHTTPToken() string {
+	return c.HTTPToken
+}
+
+func (c *ServerConfig) GetHTTPAllowedHosts() []string {
+	if c.HTTPAllowedHosts == "" {
+		return nil
+	}
+	return strings.Split(c.HTTPAllowedHosts, ",")
+}
+
+// Redacted returns a copy that is safe to log.
+func (c ServerConfig) Redacted() ServerConfig {
+	c.DataKey = redact(c.DataKey)
+	c.ImgKey = redact(c.ImgKey)
+	c.HTTPToken = redact(c.HTTPToken)
+	return c
+}
+
+func redact(secret string) string {
+	if secret == "" {
+		return ""
+	}
+	return "***"
 }
 
 func (c *ServerConfig) GetWebhook() *Webhook {
